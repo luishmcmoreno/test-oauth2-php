@@ -18,7 +18,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity)
+    public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity)    
     {
         // Some logic to persist the auth code to a database
     }
@@ -29,6 +29,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
     public function revokeAuthCode($codeId)
     {
         // Some logic to revoke the auth code in a database
+
     }
 
     /**

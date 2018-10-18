@@ -33,6 +33,7 @@ class UserRepository extends Service implements UserRepositoryInterface
             SELECT
                  tb1.email
                 ,tb1.password
+                ,tb1.id
 
             FROM
                 profile_userprofile tb1
@@ -48,9 +49,10 @@ class UserRepository extends Service implements UserRepositoryInterface
         $line = $query->fetch(PDO::FETCH_ASSOC);
         $conn = null;
         if(!empty($line)){
-             return new UserEntity();
+            return new UserEntity($line['id']);
         } else {
             return ;
         }
     }
+
 }

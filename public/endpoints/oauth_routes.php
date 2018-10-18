@@ -8,6 +8,7 @@ use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use CampuseroOAuth2\Entities\UserEntity;
 use Zend\Diactoros\Stream;
+use CampuseroOAuth2\Repositories\AccessTokenRepository;
 
 // Routes
 $app = AppContainer::getInstance();
@@ -28,7 +29,6 @@ $app->get('/authorize', function (ServerRequestInterface $request, ResponseInter
         // Validate the HTTP request and return an AuthorizationRequest object.
         // The auth request object can be serialized into a user's session
         $authRequest = $server->validateAuthorizationRequest($request);
-        
         // Once the user has logged in set the user on the AuthorizationRequest
         $authRequest->setUser(new UserEntity());
         // Once the user has approved or denied the client update the status
@@ -43,7 +43,7 @@ $app->get('/authorize', function (ServerRequestInterface $request, ResponseInter
         $body->write($exception->getMessage());
         return $response->withStatus(500)->withBody($body);
     }
-});
+})->add(new UserMiddleware(new AccessTokenRepository()));
 
 $app->post('/token', function (ServerRequestInterface $request, ResponseInterface $response) use ($app) {
     /* @var \League\OAuth2\Server\AuthorizationServer $server */

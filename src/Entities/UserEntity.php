@@ -18,8 +18,16 @@ class UserEntity implements UserEntityInterface
      *
      * @return mixed
      */
+    private $identifier;
+
+    function __construct($identifier = null)
+    {
+    	$this->identifier = $identifier;
+    }
+
     public function getIdentifier()
     {
-        return 1;
+
+        return $this->identifier;
     }
 }

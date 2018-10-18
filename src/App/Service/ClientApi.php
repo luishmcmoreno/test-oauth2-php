@@ -16,83 +16,46 @@ class ClientApi extends Service
      * Get all client_apis
      * @return array
      */
-    public function getClientApisByParams($params){
-
-        $conn = $this->getConnection();
-        $query = "
-            SELECT
-                 tb1.id_client_api
-                ,tb1.client_id
-                ,tb1.client_secret
-                ,tb1.name
-                ,tb2.description
-
-            FROM
-                client_api tb1
-                inner join redirect_uri tb2 on (tb1.id_application_third_part = tb2.id_application_third_part)
-            WHERE
-                tb1.client_secret = :client_secret
-                AND
-                tb1.client_id = :client_id
-                AND
-                tb2.description = :redirect_uri
-        ";
-
-
-        $query = $conn->prepare($query);
-
-        $query->bindParam(':client_secret', $params['client_secret']);
-        $query->bindParam(':client_id', $params['client_id']);
-        $query->bindParam(':redirect_uri', $params['redirect_uri']);
-
-
-        $query->execute();
-        $status = $this->verifyBadExecute($query);
-        $data = $query->fetch(PDO::FETCH_ASSOC);
-        $conn = null;
-
-        if(!empty($line)){
-
-            return $line;
-        } else {
-            return array();
-        }
-    }
-
-    /**
-     * Get all client_apis
-     * @return array
-     */
-    public function getAllClientApis(){
+    public function getAllClientApis($grant_type_code){
 
         $conn = $this->getConnection();
         $query = "
 
             SELECT
                 jsonb_object_agg(tb1.client_id, json)
-            FROM (
-                SELECT
-                     sb1.name
-                     ,sb1.id_application_third_part
-                FROM
-                    client_api sb1
-                    inner join redirect_uri sb2 on (sb1.id_application_third_part = sb2.id_application_third_part)
-            ) json
-            inner join client_api tb1 on test.id_application_third_part = tb1.id_application_third_part
-
+            FROM 
+                (
+                    SELECT
+                         sb1.name
+                        ,sb1.id_application_third_part
+                        ,sb2.description as redirect_uri
+                        ,sb1.client_secret as secret
+                        ,sb1.is_confidential
+                    FROM
+                        client_api sb1
+                        inner join redirect_uri sb2 on (sb1.id_application_third_part = sb2.id_application_third_part)
+                ) json
+                inner join client_api tb1 on json.id_application_third_part = tb1.id_application_third_part
+                inner join grant_type_client_api tb2 on (tb2.id_application_third_part = tb1.id_application_third_part)
+                inner join grant_type tb3 on (tb3.id_grant_type = tb2.id_grant_type)
+            WHERE
+                tb3.code = :grant_type_code
         ";
 
 
         $query = $conn->prepare($query);
-
+        $query->bindParam(':grant_type_code', $grant_type_code);
         $query->execute();
         $status = $this->verifyBadExecute($query);
-        $data = $query->fetch(PDO::FETCH_ASSOC);
+        $line = $query->fetch(PDO::FETCH_ASSOC);
         $conn = null;
 
         if(!empty($line)){
-
-            return $line;
+            $data = json_decode($line['jsonb_object_agg'],true);
+            foreach ($data as &$value) {
+                $value['secret'] = password_hash($value['secret'], PASSWORD_BCRYPT);
+            }
+            return $data;
         } else {
             return array();
         }
