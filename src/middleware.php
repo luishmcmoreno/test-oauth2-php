@@ -75,8 +75,12 @@ class UserMiddleware
                 throw OAuthServerException::accessDenied('this is not a first part token');
             }
 
-            //verify if Authorzation is first_part
             // Return the request with additional attributes
+			$request = $request
+                ->withAttribute('oauth_access_token_id', $token->getClaim('jti'))
+                ->withAttribute('oauth_client_id', $token->getClaim('aud'))
+                ->withAttribute('oauth_user_id', $token->getClaim('sub'))
+                ->withAttribute('oauth_scopes', $token->getClaim('scopes'));
             $response = $next($request, $response);
         } catch (\InvalidArgumentException $exception) {
             // JWT couldn't be parsed so return the request as is
