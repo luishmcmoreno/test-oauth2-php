@@ -4,12 +4,15 @@ include __DIR__ . '/../vendor/autoload.php';
 
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
+use League\OAuth2\Server\Grant\PasswordGrant;
+use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use CampuseroOAuth2\Repositories\AccessTokenRepository;
 use CampuseroOAuth2\Repositories\AuthCodeRepository;
 use CampuseroOAuth2\Repositories\ClientRepository;
+use CampuseroOAuth2\Repositories\UserRepository;
 use CampuseroOAuth2\Repositories\RefreshTokenRepository;
 use CampuseroOAuth2\Repositories\ScopeRepository;
-use Zend\Diactoros\Stream;
+
 
 
 return [
@@ -46,12 +49,27 @@ return [
             'lxZFUEsBCJ2Yb14IF2ygAHI5N4+ZAUXXaSeeJm6+twsUmIen'
         );
         // Enable the authentication code grant on the server with a token TTL of 1 hour
+
+        $server->enableGrantType(
+            new PasswordGrant(
+                new UserRepository(),
+                new RefreshTokenRepository()
+            )
+        );
+
         $server->enableGrantType(
             new AuthCodeGrant(
                 $authCodeRepository,
                 $refreshTokenRepository,
                 new \DateInterval('PT10M')
             ),
+            new \DateInterval('PT1H')
+        );
+
+        $grant = new RefreshTokenGrant($refreshTokenRepository);
+        $grant->setRefreshTokenTTL(new \DateInterval('P1M')); // The refresh token will expire in 1 month
+        $server->enableGrantType(
+            $grant,
             new \DateInterval('PT1H')
         );
         return $server;

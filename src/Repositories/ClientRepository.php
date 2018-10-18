@@ -11,13 +11,16 @@ namespace CampuseroOAuth2\Repositories;
 
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use CampuseroOAuth2\Entities\ClientEntity;
+use CampuseroOAuth2\App\Service;
+use \PDO;
 
-class ClientRepository implements ClientRepositoryInterface
+class ClientRepository extends Service implements ClientRepositoryInterface
 {
     /**
      * {@inheritdoc}
      */
     public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true) {
+
         $clients = [
             'myawesomeapp' => [
                 'secret'          => password_hash('abc123', PASSWORD_BCRYPT),
@@ -47,4 +50,10 @@ class ClientRepository implements ClientRepositoryInterface
 
         return $client;
     }
+
+
+
+
 }
+
+

@@ -1,8 +1,8 @@
 <?php
 
-namespace Library;
+namespace CampuseroOAuth2\App\Library;
 
-use Library;
+use CampuseroOAuth2\App\Library;
 
 class MyLogger extends Library
 {

@@ -12,22 +12,45 @@ namespace CampuseroOAuth2\Repositories;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use CampuseroOAuth2\Entities\UserEntity;
+use CampuseroOAuth2\App\Service;
+use \PDO;
 
-class UserRepository implements UserRepositoryInterface
+class UserRepository extends Service implements UserRepositoryInterface
 {
     /**
      * {@inheritdoc}
      */
     public function getUserEntityByUserCredentials(
-        $username,
+        $email,
         $password,
         $grantType,
         ClientEntityInterface $clientEntity
     ) {
-        if ($username === 'alex' && $password === 'whisky') {
-            return new UserEntity();
-        }
+        
+        $conn = $this->getConnection();
 
-        return;
+        $query = $conn->prepare("
+            SELECT
+                 tb1.email
+                ,tb1.password
+
+            FROM
+                profile_userprofile tb1
+            WHERE
+                tb1.email = :email
+                and
+                tb1.password = md5(:password)
+        ");
+
+        $query->bindParam(':email', $email);
+        $query->bindParam(':password', $password);
+        $query->execute();
+        $line = $query->fetch(PDO::FETCH_ASSOC);
+        $conn = null;
+        if(!empty($line)){
+             return new UserEntity();
+        } else {
+            return ;
+        }
     }
 }

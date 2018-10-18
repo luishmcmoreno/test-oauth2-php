@@ -1,0 +1,14 @@
+Aplicações:
+
+Campuse.ro -> password, refresh_token (first-party)
+App Mobile -> code, refresh_token (third-party)
+Hasghtag.be -> code, refresh_token (third-party)
+
+Campuse.ro - Vai se logar através do /token, com o grant_type=password. Uma vez logado, ele permanecerá logado, chamando o /refresh_token. Vai chamar o /authorize, logado, e o server retorna o code...
+
+/signup
+
+/authorize - code (PRECISA ESTAR LOGADO, com grant_type=password)
+
+/token - /authorization_code/password/refresh_token (PRECISA ESTAR DESLOGADO)
+

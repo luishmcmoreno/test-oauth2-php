@@ -1,3 +1,6 @@
 /vendor/
 /logs/*
+/config/local.ini
 !/logs/README.md
+private.key
+public.key
